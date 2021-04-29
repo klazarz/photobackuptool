@@ -19,7 +19,7 @@ def main():
     yes_day = yesterday.strftime('%d')
 
     # Start exporting photos from this date onwards
-    yes_str = '20210426'
+    #yes_str = '20210426'
 
     photosdb = osxphotos.PhotosDB()
     photos = photosdb.photos(from_date=datetime.datetime.strptime(yes_str, '%Y%m%d'))
@@ -32,11 +32,11 @@ def main():
             # if hasattr(p.exif_info, 'camera_model'):
             #     fold_struc = "export/%Y/%m/" + str(p.exif_info.camera_model)
             # else:
-            fold_struc = 'export/%Y/%m/'
-            fold_struc_mov = 'export/%Y/%m/movies/'
-            fold_struc_no_model='export/%Y/%m/none/'
+            fold_struc = '/Volumes/YOGI/photos/%Y/%m/'
+            fold_struc_mov = '/Volumes/YOGI/photos/%Y/%m/movies/'
+            fold_struc_no_model='/Volumes/YOGI/photos/%Y/%m/none/'
 
-            prep_dir = 'export/tmp/'
+            prep_dir = '/Volumes/YOGI/photos/tmp/'
 
             os.makedirs(p.date.strftime(fold_struc_mov), exist_ok=True)
             os.makedirs(p.date.strftime(fold_struc_no_model), exist_ok=True)
