@@ -24,9 +24,10 @@ def main():
     photosdb = osxphotos.PhotosDB()
     photos = photosdb.photos(from_date=datetime.datetime.strptime(yes_str, '%Y%m%d'))
 
-   
+    i=0
+
     for p in photos:
-        print(p.original_filename, 'shared: ', p.shared)
+        # print(p.original_filename, 'shared: ', p.shared)
         if not p.shared or p.shared == None:
         # The folder structure - right now it is root / year / month
             # if hasattr(p.exif_info, 'camera_model'):
@@ -55,19 +56,19 @@ def main():
                 else:
                     p.export(p.date.strftime(prep_dir), p.date.strftime('%Y%m%d') + '_' + p.original_filename, use_photos_export=True)
             
-            print('check: ', new_name)
+            # print('check: ', new_name)
             if new_name.endswith('.HEIC'):
                 os.system('heic2jpg -s')
-                print('converted HEIC!')
+                # print('converted HEIC!')
             elif new_name.lower().endswith('.png'):
                 shutil.move(prep_dir + '/' + new_name, p.date.strftime(fold_struc_no_model))
 
-            if not p.ismovie:
+            if not p.ismovie and not new_name.lower().endswith('.png'):
                 basepath = prep_dir
                 with os.scandir(basepath) as entries:
                     for entry in entries:
                         if entry.is_file():
-                            print(entry.name)
+                            # print(entry.name)
                             with open(entry, 'rb') as image_file:
                                 my_image = Image(image_file)
                                 # print(my_image.model)
@@ -75,6 +76,10 @@ def main():
                                 os.makedirs(p.date.strftime(fold_struc), exist_ok=True)
                                 tar_dir = p.date.strftime(fold_struc) + '/'
                                 shutil.move(prep_dir_str + '/' + entry.name, tar_dir)
+        i += 1
+
+    os.system('echo ' + str(today) + ': ' + str(i) + ' files. >> log.txt')
+
 
             # print(
             #       p.original_filename)
