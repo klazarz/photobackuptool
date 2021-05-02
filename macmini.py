@@ -57,8 +57,8 @@ def main():
                     p.export(p.date.strftime(prep_dir), p.date.strftime('%Y%m%d') + '_' + p.original_filename, use_photos_export=True)
             
             # print('check: ', new_name)
-            if new_name.endswith('.HEIC'):
-                os.system('heic2jpg -s')
+            if new_name.lower().endswith('.heic'):
+                os.system('heic2jpg -s /Volumes/YOGI/photos/tmp/')
                 # print('converted HEIC!')
             elif new_name.lower().endswith('.png'):
                 shutil.move(prep_dir + '/' + new_name, p.date.strftime(fold_struc_no_model))
@@ -67,7 +67,7 @@ def main():
                 basepath = prep_dir
                 with os.scandir(basepath) as entries:
                     for entry in entries:
-                        if entry.is_file():
+                        if entry.is_file() and not entry.name == ('.DS_Store'):
                             # print(entry.name)
                             with open(entry, 'rb') as image_file:
                                 my_image = Image(image_file)
