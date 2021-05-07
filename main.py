@@ -21,14 +21,14 @@ def main():
 
     for p in photos:
            # The folder structure - right now it is root / year / month
-        if hasattr(p, 'camera_model'):
-           fold_struc = "/Volumes/YOGI/photos/%Y/%m/" + str(p.exif_info.camera_model)
+        if hasattr(p.exif_info, 'camera_model'):
+           fold_struc = "export/%Y/%m/" + str(p.exif_info.camera_model)
         else:
-           fold_struc = "/Volumes/YOGI/photos/%Y/%m/none"
+           fold_struc = "export/%Y/%m/none"
 
         os.makedirs(p.date.strftime(fold_struc), exist_ok=True)
 
-        if hasattr(p, 'camera_model'):
+        if hasattr(p.exif_info, 'camera_model'):
             if p.hasadjustments:
                 p.export(p.date.strftime(fold_struc), p.date.strftime('%Y%m%d') + '_' +str(p.exif_info.camera_model) + '_' + p.original_filename, edited=True)
             else:
@@ -43,7 +43,8 @@ def main():
 
 
         print(
-            p.original_filename
+            p.original_filename,
+            # p.date.strftime(fold_struc), p.date.strftime('%Y%m%d') + '_none_' + p.original_filename
             # p.date.strftime('%Y%m%d'),
             # file_extension,
             # p.date.strftime('%Y%m%d') + str(file_extension)
