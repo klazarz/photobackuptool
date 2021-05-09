@@ -26,6 +26,7 @@ def main():
             lines = f.readlines()
         
         # print(lines[-1].replace('-',''))
+        lastrun_str=lines[-1].replace('-','').replace('\n','')
         yes_str = lines[-1].replace('-','').replace('\n','')
 
         if yes_str == tod_str:
@@ -47,7 +48,7 @@ def main():
 
     for p in photos:
         added = datetime.datetime.strftime(p.date_added, '%Y%m%d')
-        if added >= yes_str and not p.shared or p.shared == None:
+        if added >= lastrun_str and added < tod_str and not p.shared or p.shared == None:
             # print(added)
             if hasattr(p.exif_info, 'camera_model'):
                 fold_struc = "/Users/kevin/Desktop/photobackup/%Y/%m/" + str(p.exif_info.camera_model)
