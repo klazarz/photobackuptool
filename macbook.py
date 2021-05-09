@@ -102,7 +102,7 @@ def main():
             #Convert HEIC to jpg
             conversion(photo_dir)
             
-        i += 1
+            i += 1
 
 
 
