@@ -8,6 +8,7 @@ import adbsettings
 from datetime import date, timedelta
 from exif import Image
 
+# this script loads all metadata from Photos in an ADB
 
 def main():
     photosdb = osxphotos.PhotosDB()
@@ -54,13 +55,9 @@ def main():
             # var = cursor.var(cx_Oracle.DB_TYPE_JSON)
             # var.setvalue(0, exif_value)
 
-            cursor.execute("insert into photos(uuid,creation_date,filename,exiftool,photojson,location,make, model) values (:uui, :creation_date, :filename, :exiftool, :photojson, :location, :make, :model)", uui = p.uuid, creation_date = p.date, filename = new_name, exiftool = exif_value, photojson = photo_value, location = str(p.location), make=p.exif_info.camera_make, model=p.exif_info.camera_model)
+            cursor.execute("insert into photos(uuid,creation_date,filename,exiftool,photojson,location,make, model, date_added) values (:uui, :creation_date, :filename, :exiftool, :photojson, :location, :make, :model, :date_added)", uui = p.uuid, creation_date = p.date, filename = new_name, exiftool = exif_value, photojson = photo_value, location = str(p.location), make=p.exif_info.camera_make, model=p.exif_info.camera_model, date_added = p.date_added)
 
-
-            
-            
             i += 1
-
          
             if i==1000:
                 connection.commit() 

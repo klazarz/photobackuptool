@@ -2,24 +2,30 @@ import osxphotos
 import datetime
 import os
 import shutil
+import cx_Oracle
+import adbsettings
+import json
 
 from datetime import date, timedelta
 from exif import Image
 from osxphotos.imageconverter import ImageConverter
 
+# this script stores all new photos on the desktop folder 'photobackup'
+# it also covnerts any HEIC file to jpg
+# lastly, it stores all meta data in an ADB
 
 def main():
+    #Oracle DB Connection
+    cx_Oracle.init_oracle_client(lib_dir="/Users/kevin/instantclient_19_8/")
+
+    connection = cx_Oracle.connect(user=adbsettings.user, password=adbsettings.password, dsn=adbsettings.dwh)
+
+    cursor = connection.cursor()
 
     # This is yesterday's date - relevant for daily exports
     today = date.today()
     yesterday = today - timedelta(days = 1)
     tod_str = tod_str = datetime.datetime.strftime(today, '%Y%m%d')
-    
-    # yes_year = yesterday.strftime('%Y')
-    # yes_month = yesterday.strftime('%m')
-    # yes_day = yesterday.strftime('%d')
-
-    # Start exporting photos from this date onwards
     
     if os.path.exists('last_run.txt'):
         with open('last_run.txt') as f:
@@ -31,12 +37,9 @@ def main():
 
         if yes_str == tod_str:
             exit()
-
     else:
          yes_str = yesterday.strftime('%Y%m%d')
 
-   
-   
     # yes_str = '20210506'
     # tod_str = '20210507'
 
@@ -49,6 +52,7 @@ def main():
     for p in photos:
         added = datetime.datetime.strftime(p.date_added, '%Y%m%d')
         if added >= lastrun_str and added < tod_str and not p.shared or p.shared == None:
+        # if added == tod_str and not p.shared or p.shared == None:    
             # print(added)
             if hasattr(p.exif_info, 'camera_model'):
                 fold_struc = "/Users/kevin/Desktop/photobackup/%Y/%m/" + str(p.exif_info.camera_model)
@@ -73,6 +77,29 @@ def main():
                 else:
                     p.export(p.date.strftime(fold_struc), p.date.strftime('%Y%m%d') + '_' + p.original_filename, use_photos_export=True)
             
+            #Store meta data in ADB
+            exif_value = p.exiftool.json().decode('utf8').replace("'", '"').replace("\\","")
+            photo_value = p.json()
+        
+            try:
+                exif_verify = json.loads(exif_value)
+            except ValueError as e:
+                exif_value = '{"NoExif": "None"}'
+
+            try:
+                photo_verify = json.loads(photo_value)
+            except ValueError as e:
+                photo_value = '{"NoExif": "None"}'
+            
+            if new_name.lower().endswith('.heic'):      
+                base = os.path.splitext(new_name)[0]
+                new_name_jpg = str(base + '.jpg')
+
+            cursor.execute("insert into photos(uuid,creation_date,filename,exiftool,photojson,location,make, model, date_added) values (:uui, :creation_date, :filename, :exiftool, :photojson, :location, :make, :model, :date_added)", uui = p.uuid, creation_date = p.date, filename = new_name_jpg, exiftool = exif_value, photojson = photo_value, location = str(p.location), make=p.exif_info.camera_make, model=p.exif_info.camera_model, date_added = p.date_added)
+
+            connection.commit() 
+
+            #Convert HEIC to jpg
             conversion(photo_dir)
             
         i += 1
@@ -98,6 +125,7 @@ def conversion(photo_dir):
                 output = photo_dir + '/' + str(new_name_jpg)
                 converter.write_jpeg(input, output)
                 os.remove(input)
+
                
 
 if __name__ == "__main__":
