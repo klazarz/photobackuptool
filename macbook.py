@@ -94,6 +94,8 @@ def main():
             if new_name.lower().endswith('.heic'):      
                 base = os.path.splitext(new_name)[0]
                 new_name_jpg = str(base + '.jpg')
+            else:
+                new_name_jpg = new_name
 
             cursor.execute("insert into photos(uuid,creation_date,filename,exiftool,photojson,location,make, model, date_added) values (:uui, :creation_date, :filename, :exiftool, :photojson, :location, :make, :model, :date_added)", uui = p.uuid, creation_date = p.date, filename = new_name_jpg, exiftool = exif_value, photojson = photo_value, location = str(p.location), make=p.exif_info.camera_make, model=p.exif_info.camera_model, date_added = p.date_added)
 
